@@ -3,7 +3,7 @@ var express = require('express')
 var app = express()
 
 app.get('/', function (req:any, res:any) {
-    res.send('Hello World!\n')
+    res.send('Hello World Test!\n')
 })
 
 // Export server for testing.
