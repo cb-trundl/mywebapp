@@ -1,0 +1,114 @@
+---
+version: 2
+plan:
+  project-key: MWS
+  key: DEV
+  name: Development
+  description: Download the code, build and deploy to QA servers
+stages:
+- Default Stage:
+    manual: false
+    final: false
+    jobs:
+    - Default Job
+Default Job:
+  key: JOB1
+  tasks:
+  - checkout:
+      path: ./Exps/mywebappqa
+      force-clean-build: true
+      description: Checkout
+  - command:
+      executable: npm
+      argument: install --save-dev express
+      description: Install express
+  - command:
+      executable: npm
+      argument: install --save-dev @types/node
+      description: Install node types
+  - command:
+      executable: npm
+      argument: install --save-dev @types/mocha
+      description: Install mocha
+  - command:
+      executable: npm
+      argument: install --save-dev supertest
+      description: Install supertest
+  - command:
+      executable: TSC
+      working-dir: ./Exps/mywebappqa
+      description: TSC
+# com.atlassian.bamboo.plugins.scripttask:task.builder.command is disabled. This state is not supported at YAML
+  - any-task:
+      plugin-key: com.atlassian.bamboo.plugins.bamboo-nodejs-plugin:task.builder.mocha
+      configuration:
+        mochaRuntime: /usr/local/lib/node_modules/mocha/bin/mocha.js
+        testFiles: ./Exps/mywebappqa/test/app_tests.js
+        runtime: Node
+        parseTestResults: 'true'
+        arguments: --reporter mocha-bamboo-reporter
+      description: Run Tests
+  - test-parser:
+      type: mocha
+      ignore-time: false
+      test-results: mocha.json
+      description: Test Results
+  - any-task:
+      plugin-key: com.atlassian.bamboo.plugins.bamboo-nodejs-plugin:task.builder.node
+      configuration:
+        runtime: Node
+        command: Exps/mywebappqa/app.js
+      description: Run app
+  artifact-subscriptions: []
+repositories:
+- GitRepo-Website:
+    type: github
+    base-url: https://github.com
+    repository: cb-trundl/mywebapp
+    branch: main
+    user: cb-trundl
+    password: BAMSCRT@0@0@hUfc/YjOXT6EQj9Gh0zAjMHsBe7X0houGCXWsZeHBh9ykOKDX2ejCYNrxHZ8cpzrZ6NikPegLkx8OSco6+Q/78xJzFe5AkkCe9pQfcbNqRLwQdVzwnFRhzhM+uM5Ex50
+    command-timeout-minutes: '180'
+    lfs: false
+    verbose-logs: true
+    use-shallow-clones: false
+    cache-on-agents: true
+    submodules: false
+    ssh-key-applies-to-submodules: true
+    fetch-all: false
+    viewer:
+      com.atlassian.bamboo.plugins.atlassian-bamboo-plugin-git:githubViewer: {}
+triggers:
+- remote:
+    description: On Merge
+- polling:
+    period: '60'
+    description: New Changes
+branches:
+  create: manually
+  delete: never
+  link-to-jira: false
+notifications: []
+labels: []
+dependencies:
+  require-all-stages-passing: false
+  enabled-for-branches: true
+  block-strategy: none
+  plans: []
+other:
+  concurrent-build-plugin: system-default
+---
+version: 2
+plan:
+  key: MWS-DEV
+plan-permissions:
+- users:
+  - cidoni
+  permissions:
+  - view
+  - edit
+  - build
+  - clone
+  - admin
+  - view-configuration
+...
