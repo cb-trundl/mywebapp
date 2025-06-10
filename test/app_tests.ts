@@ -13,7 +13,7 @@ describe('routes', function() {
     var server:any;
 
     beforeEach(function() {
-        // Clears the cache so a new server instance is used for each test.
+        // Clears the cache so a new server instance is used for each test. New.
         delete require.cache[require.resolve('../app')];
         server = require("../app");
     });
