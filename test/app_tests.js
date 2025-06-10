@@ -11,7 +11,7 @@ describe('array', function () {
 describe('routes', function () {
     var server;
     beforeEach(function () {
-        // Clears the cache so a new server instance is used for each test.
+        // Clears the cache so a new server instance is used for each test. New change.
         delete require.cache[require.resolve('../app')];
         server = require("../app");
     });
